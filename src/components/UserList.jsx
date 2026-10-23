@@ -1,21 +1,53 @@
 // src/components/UserList.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserCard } from './UserCard';
 
-export function UserList({ users }) {
-    // 1. State pour stocker ce que l'utilisateur tape dans la barre de recherche
+export function UserList() {
+    // 1. États pour stocker les utilisateurs, le chargement et les erreurs
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // 2. Filtrer le tableau des utilisateurs en temps réel
+    // 2. useEffect pour lancer l'appel API au chargement du composant
+    useEffect(() => {
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la récupération des données');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setUsers(data);      // On stocke les données reçues dans le state
+                setLoading(false);   // On désactive l'état de chargement
+            })
+            .catch(err => {
+                setError(err.message); // On stocke l'erreur s'il y en a une
+                setLoading(false);
+            });
+    }, []); // Tableau vide [] = s'exécute une seule fois au premier affichage (montage)
+
+    // 3. Filtrage dynamique basé sur la recherche
     const filteredUsers = users.filter(user =>
         user.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // 4. Gestion de l'affichage pendant le chargement
+    if (loading) {
+        return <p style={{ textAlign: 'center', color: '#666' }}>⏳ Chargement des utilisateurs en cours...</p>;
+    }
+
+    // 5. Gestion de l'affichage en cas d'erreur réseau
+    if (error) {
+        return <p style={{ textAlign: 'center', color: '#ef4444' }}>❌ Erreur : {error}</p>;
+    }
+
     return (
         <div>
-            <h2>Liste des Utilisateurs (Interactif)</h2>
+            <h2>Liste des Utilisateurs (Via API)</h2>
 
-            {/* 3. Champ de saisie (Input de recherche) */}
+            {/* Barre de recherche */}
             <input
                 type="text"
                 placeholder="🔍 Rechercher par nom..."
@@ -32,7 +64,7 @@ export function UserList({ users }) {
                 }}
             />
 
-            {/* 4. Affichage conditionnel selon le résultat du filtre */}
+            {/* Liste des cartes */}
             {filteredUsers.length > 0 ? (
                 filteredUsers.map(user => (
                     <UserCard key={user.id} user={user} />

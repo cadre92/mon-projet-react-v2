@@ -2,8 +2,10 @@
 import React, { useState } from 'react';
 
 export function UserCard({ user }) {
-    // 1. Déclaration du State local pour le bouton Like
     const [isLiked, setIsLiked] = useState(false);
+
+    // Gère le format de la ville (selon si on utilise l'API ou les données statiques)
+    const city = user.address ? user.address.city : user.city;
 
     return (
         <div style={{
@@ -11,7 +13,7 @@ export function UserCard({ user }) {
             padding: '15px',
             borderRadius: '8px',
             marginBottom: '10px',
-            background: isLiked ? '#f0f9ff' : '#fff', // Change la couleur de fond si liké
+            background: isLiked ? '#f0f9ff' : '#fff',
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
             display: 'flex',
             justifyContent: 'space-between',
@@ -20,10 +22,9 @@ export function UserCard({ user }) {
             <div>
                 <h3 style={{ margin: '0 0 8px 0', color: '#333' }}>{user.name}</h3>
                 <p style={{ margin: '4px 0', color: '#666' }}>📧 Email : {user.email}</p>
-                <p style={{ margin: '4px 0', color: '#666' }}>📍 Ville : {user.city}</p>
+                <p style={{ margin: '4px 0', color: '#666' }}>📍 Ville : {city}</p>
             </div>
 
-            {/* 2. Bouton interactif */}
             <button
                 onClick={() => setIsLiked(!isLiked)}
                 style={{
